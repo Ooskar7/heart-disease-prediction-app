@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heart Disease ML Thesis Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <p>Bachelor thesis</p>
+          <h1>Heart Disease Severity Prediction</h1>
+        </div>
+        <nav class="nav" aria-label="Sections">
+          <button class="nav-item active" data-tab="eda" type="button">EDA workflow</button>
+          <button class="nav-item" data-tab="training" type="button">Model training</button>
+          <button class="nav-item" data-tab="predictor" type="button">Predictive demo</button>
+        </nav>
+        <section class="sidebar-note">
+          <strong>Academic demonstration only.</strong>
+          <span>This tool is not a medical diagnosis system and must not be used for clinical decisions.</span>
+        </section>
+      </aside>
+
+      <main class="content">
+        <section class="notice" role="note">
+          <strong>Not medical diagnosis.</strong>
+          This web application is an academic demonstration of a machine-learning workflow trained on historical public data. It does not replace medical evaluation by a healthcare professional.
+        </section>
+
+        <section class="tab-panel active" id="eda">
+          <header class="page-header">
+            <p class="eyebrow">Development and experiments</p>
+            <h2>Exploratory data analysis, cleaning and dataset construction</h2>
+            <p>
+              The practical chapter starts from a public heart-disease dataset and builds the data foundation needed for model comparison. The goal is not only to clean the data, but to reason step by step about which information can be trusted, which missing values can be imputed, and which design choices preserve enough signal to outperform a dummy classifier later.
+            </p>
+          </header>
+
+          <section class="story-section">
+            <article class="article-block wide">
+              <h3>1. Dataset source and target definition</h3>
+              <p>
+                The original file, <code>heart_disease_uci.csv</code>, contains 920 patient records collected from four sources: Cleveland, Hungary, Switzerland and VA Long Beach. Each record combines demographic variables, laboratory measurements, resting ECG information and exercise-test results. The target variable is <code>num</code>, assigned after clinical evaluation.
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Target value</th><th>Interpretation</th><th>Original count</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>0</td><td>No detectable heart disease</td><td>411</td></tr>
+                    <tr><td>1</td><td>Mild disease, Stage 1</td><td>265</td></tr>
+                    <tr><td>2</td><td>Moderate disease, Stage 2</td><td>109</td></tr>
+                    <tr><td>3</td><td>Advanced disease, Stage 3</td><td>107</td></tr>
+                    <tr><td>4</td><td>Severe disease, Stage 4</td><td>28</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                This distribution immediately shapes the project. A naive multiclass model can obtain apparently acceptable accuracy by overpredicting class 0, while failing to identify the clinically important minority stages. For that reason, the thesis tracks recall and macro-averaged metrics rather than relying only on accuracy.
+              </p>
+              <pre><code>df = pd.read_csv("heart_disease_uci.csv")
+df.shape
+df["num"].value_counts().sort_index()</code></pre>
+            </article>
+
+            <figure class="media-card">
+              <img src="/static/assets/kaggle.png" alt="Kaggle public database source slide" />
+              <figcaption>The practical work begins from a public, reproducible heart-disease dataset.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>2. Feature inventory</h3>
+              <p>
+                The dataset includes one identifier, fourteen predictors and one target. Continuous predictors include <code>age</code>, <code>trestbps</code>, <code>chol</code>, <code>thalach</code> and <code>oldpeak</code>. Categorical predictors include <code>sex</code>, <code>dataset</code>, <code>cp</code>, <code>fbs</code>, <code>restecg</code>, <code>exang</code>, <code>slope</code>, <code>ca</code> and <code>thal</code>.
+              </p>
+              <p>
+                This inventory matters because the training notebook later applies one-hot encoding to categorical variables and standardization to distance-sensitive models such as k-NN and SVM.
+              </p>
+            </article>
+            <figure class="media-card">
+              <img src="/static/assets/features-1.png" alt="Clinical feature overview" />
+              <figcaption>Clinical predictors combine demographic, laboratory and exercise-test information.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>3. First cleaning: impossible physiological values</h3>
+              <p>
+                The EDA does not treat all numeric values as valid just because they are present. Two impossible values are detected: one patient has <code>trestbps = 0</code> mmHg and 172 records have <code>chol = 0</code> mg/dL. Both are physiologically impossible in living patients, so they are converted to missing values before any distributional analysis or model fitting.
+              </p>
+              <pre><code>df["trestbps"] = df["trestbps"].replace(0, np.nan)
+df["chol"] = df["chol"].replace(0, np.nan)</code></pre>
+              <p>
+                This decision prevents erroneous zeros from pulling means, histograms and downstream imputers toward impossible values.
+              </p>
+            </article>
+            <figure class="media-card">
+              <img src="/static/assets/high-missing-variables.png" alt="High missing variables slide" />
+              <figcaption>After cleaning impossible values, missingness becomes the central data-quality problem.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block wide">
+              <h3>4. Missing-value map and row-level deletion</h3>
+              <p>
+                Before deleting anything, missing values are counted both by feature and by row. The most problematic variables are <code>ca</code>, <code>thal</code> and <code>slope</code>, with missingness of 66.41%, 52.83% and 33.59% in the original dataset after physiological cleaning. The row-level view shows that missingness is concentrated in a subset of highly incomplete records.
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Missing fields in row</th><th>Number of rows</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>0</td><td>299</td></tr>
+                    <tr><td>1</td><td>26</td></tr>
+                    <tr><td>2</td><td>212</td></tr>
+                    <tr><td>3</td><td>231</td></tr>
+                    <tr><td>4 or more</td><td>152</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                The thesis removes the 152 records with four or more missing fields. This discards 16.52% of the rows but removes 40.8% of all missing entries, reducing the imputation burden while keeping 768 usable samples. That trade-off is justified because rows with many missing values add little reliable signal and would force heavy imputation across several features at once.
+              </p>
+              <pre><code>nulls_per_row = df.isnull().sum(axis=1)
+rows_to_drop = nulls_per_row.isin([4, 5, 6, 7, 8])
+df_filtered = df[~rows_to_drop]</code></pre>
+            </article>
+            <figure class="media-card">
+              <img src="/static/assets/null-row-count.png" alt="Distribution of missing values per row" />
+              <figcaption>Rows with four or more missing fields concentrate a large share of the missing-value problem.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block wide">
+              <h3>5. Three dataset-construction strategies</h3>
+              <p>
+                After row filtering, the project deliberately constructs three datasets instead of betting on one preprocessing assumption. This allows the training notebook to measure how different missing-value strategies affect accuracy, recall and class balance.
+              </p>
+              <div class="strategy-grid">
+                <figure class="media-card compact">
+                  <img src="/static/assets/no-nans-strategy.png" alt="No NaNs strategy" />
+                  <figcaption><strong>No NaNs:</strong> remove every incomplete row. Maximum integrity, but only 297 rows after outlier treatment.</figcaption>
+                </figure>
+                <figure class="media-card compact">
+                  <img src="/static/assets/no-ill-conditions-strategy.png" alt="No ill conditions strategy" />
+                  <figcaption><strong>No Ill Conditions:</strong> drop <code>slope</code>, <code>ca</code> and <code>thal</code>, then impute the remaining low/moderate missingness.</figcaption>
+                </figure>
+                <figure class="media-card compact">
+                  <img src="/static/assets/ill-conditions-strategy.png" alt="Ill conditions strategy" />
+                  <figcaption><strong>Ill Conditions:</strong> preserve more clinical signal by transforming <code>slope</code> and <code>thal</code> into binary variables.</figcaption>
+                </figure>
+              </div>
+            </article>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>6. Imputation logic</h3>
+              <p>
+                Simple and predictive imputations are used only where they are defensible. <code>trestbps</code> and <code>oldpeak</code> have only one missing value after row filtering, so mean imputation has negligible distributional impact. <code>fbs</code> is binary and imputed by sampling according to its observed frequency distribution. <code>chol</code> still has 13.15% missingness, so several predictive imputers are tested; because they do not beat the mean baseline, mean imputation is selected.
+              </p>
+              <p>
+                The high-missingness variables require stronger decisions. <code>ca</code> is dropped because 59.77% missingness remains after filtering. <code>slope</code> and <code>thal</code> are clinically meaningful, so they are collapsed into less sparse binary indicators: <code>slope_bin</code> is flat vs non-flat, and <code>thal_bin</code> is defect vs no defect. This sacrifices category granularity to preserve usable signal.
+              </p>
+              <pre><code>df_clean["slope_bin"] = df_clean["slope"].map({
+    "flat": "flat",
+    "upsloping": "non-flat",
+    "downsloping": "non-flat"
+})
+
+df_clean["thal_bin"] = df_clean["thal"].map({
+    "normal": "no defect",
+    "fixed defect": "defect",
+    "reversable defect": "defect"
+})</code></pre>
+            </article>
+            <article class="article-block">
+              <h3>7. Relationship analysis</h3>
+              <p>
+                Correlation analysis is used to understand which variables carry signal about severity. For numeric features, Pearson correlation identifies <code>oldpeak</code>, <code>thalach</code> and <code>age</code> as the most informative predictors. Higher ST depression and lower maximum heart rate align with more severe heart disease, which is clinically plausible.
+              </p>
+              <p>
+                For categorical variables, the analysis uses an ANOVA-style correlation ratio. Chest pain type and exercise-induced angina are the strongest categorical predictors across the processed datasets, followed by thalassemia status, sex and resting ECG.
+              </p>
+              <div class="mini-metrics">
+                <div><span>Oldpeak correlation</span><strong>0.45</strong></div>
+                <div><span>Thalach correlation</span><strong>-0.37</strong></div>
+                <div><span>Chest pain eta</span><strong>0.46</strong></div>
+                <div><span>Exercise angina eta</span><strong>0.42</strong></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>8. Outlier detection and treatment</h3>
+              <p>
+                Because clinical datasets can contain legitimate extreme measurements, the project avoids the standard 25th-75th percentile IQR rule, which would be too aggressive for a modest sample. Instead, it computes a wider 5th-95th percentile IQR band and removes only rows outside that relaxed range.
+              </p>
+              <p>
+                This removes 2 outliers from the No NaNs dataset and 1 outlier from each imputed dataset, preserving nearly all usable data while protecting models from extreme leverage points.
+              </p>
+            </article>
+            <figure class="media-card">
+              <img src="/static/assets/outliers-band.png" alt="Relaxed outlier band" />
+              <figcaption>The relaxed 5th-95th percentile IQR band protects against anomalies without discarding valid clinical extremes.</figcaption>
+            </figure>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="training">
+          <header class="page-header">
+            <p class="eyebrow">Nested validation and model comparison</p>
+            <h2>Training protocol, evaluation metrics and final model choice</h2>
+            <p>
+              The training notebook tests whether the engineered datasets and classifiers actually improve over a dummy baseline. The central design principle is sensitivity: in a medical screening context, missing a diseased patient is more costly than producing an additional false alarm.
+            </p>
+          </header>
+
+          <div class="metric-grid" id="training-metrics">
+            <div><span>Selected dataset</span><strong>modified_dataset_with_imputations.csv</strong></div>
+            <div><span>Selected model</span><strong>KNN tuned</strong></div>
+            <div><span>Artifact accuracy</span><strong>0.84</strong></div>
+            <div><span>Disease recall</span><strong>0.86</strong></div>
+          </div>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>1. Why nested cross-validation?</h3>
+              <p>
+                A single train/test split would make the result depend too much on one random partition. The thesis therefore uses a 5-fold outer cross-validation loop and a 3-fold inner loop for hyperparameter tuning. The outer test fold is never used to choose hyperparameters, so the final score is a less biased estimate of generalization.
+              </p>
+              <pre><code>outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+grid = GridSearchCV(model, param_grid, cv=3, scoring="recall")
+y_pred = cross_val_predict(grid, X, y, cv=outer_cv)</code></pre>
+            </article>
+            <figure class="media-card">
+              <img src="/static/assets/diagram-model-training.png" alt="Nested cross-validation diagram" />
+              <figcaption>Each outer fold is evaluated only after hyperparameters are selected inside the training portion.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block wide">
+              <h3>2. Classifiers and hyperparameters</h3>
+              <p>
+                Six supervised classifiers are compared: Logistic Regression, k-Nearest Neighbors, Random Forest, Naive Bayes, SVM with RBF kernel, and XGBoost. A Dummy Classifier is kept as the minimum baseline to beat. Hyperparameters are chosen to span simple and more flexible decision boundaries while keeping the grid small enough for repeated cross-validation.
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Model</th><th>Main tuned parameter</th><th>Reason</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Logistic Regression</td><td><code>C</code></td><td>Controls regularization strength and bias-variance trade-off.</td></tr>
+                    <tr><td>k-NN</td><td><code>n_neighbors</code></td><td>Controls local sensitivity vs smoother decision boundaries.</td></tr>
+                    <tr><td>Random Forest</td><td><code>n_estimators</code>, <code>max_depth</code></td><td>Controls ensemble stability and tree complexity.</td></tr>
+                    <tr><td>Naive Bayes</td><td><code>var_smoothing</code></td><td>Prevents numerical instability in Gaussian likelihoods.</td></tr>
+                    <tr><td>SVM</td><td><code>C</code>, <code>gamma</code></td><td>Controls margin tolerance and RBF boundary flexibility.</td></tr>
+                    <tr><td>XGBoost</td><td><code>n_estimators</code>, <code>max_depth</code>, <code>learning_rate</code></td><td>Controls boosted-tree complexity and learning speed.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>3. Binary classifier: disease vs no disease</h3>
+              <p>
+                The first modelling target collapses <code>num</code> into a binary label: 0 means no disease and 1 means any disease stage. This is a clinically useful screening task and provides a baseline before attempting severity staging.
+              </p>
+              <p>
+                On the Ill Conditions dataset, k-NN achieves the strongest practical balance: approximately 0.84 accuracy and 0.86 recall for the disease class. The dummy classifier reaches only 0.53 accuracy on this dataset by always predicting disease, so the tuned model is meaningfully better than the baseline.
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Dataset</th><th>Best practical model</th><th>Accuracy</th><th>Disease recall</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>No NaNs</td><td>Logistic Regression</td><td>0.84</td><td>0.80</td></tr>
+                    <tr><td>Ill Conditions</td><td>k-NN tuned</td><td>0.84</td><td>0.86</td></tr>
+                    <tr><td>No Ill Conditions</td><td>k-NN tuned</td><td>0.83</td><td>0.84</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+            <div class="figure-pair">
+              <figure class="media-card compact">
+                <img src="/static/assets/binary-classifier-cm.png" alt="Binary classifier confusion matrix" />
+                <figcaption>Binary confusion matrix for tuned k-NN on the Ill Conditions dataset.</figcaption>
+              </figure>
+              <figure class="media-card compact">
+                <img src="/static/assets/binary-classifier-roc.png" alt="Binary classifier ROC curve" />
+                <figcaption>ROC AUC around 0.90 confirms strong discrimination between diseased and non-diseased patients.</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>4. Multiclass severity prediction</h3>
+              <p>
+                The full target <code>num ∈ {0,1,2,3,4}</code> is harder because the original class distribution is highly skewed. On the original datasets, most models obtain only around 0.50-0.60 accuracy and weak macro recall, meaning they mostly recognize the majority class and fail on rarer severe stages.
+              </p>
+              <p>
+                To address this, the notebook constructs four resampled variants: Balanced, Equalized to Class 1, Equalized to Class 2, and Equalized to Class 4. Equalizing to Class 1 gives the strongest multiclass result because it preserves more total samples while making all classes equally represented. Random Forest and XGBoost reach approximately 0.83 accuracy and 0.83 macro recall on that dataset.
+              </p>
+            </article>
+            <div class="figure-pair">
+              <figure class="media-card compact">
+                <img src="/static/assets/multiclass-classifier-cm.png" alt="Multiclass classifier confusion matrix" />
+                <figcaption>Random Forest on the Equalized-to-Class-1 dataset correctly concentrates predictions on the diagonal.</figcaption>
+              </figure>
+              <figure class="media-card compact">
+                <img src="/static/assets/multiclass-classifier-roc.png" alt="Multiclass classifier ROC curves" />
+                <figcaption>One-vs-rest ROC curves show that balanced data substantially improves separability.</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <section class="story-section">
+            <article class="article-block">
+              <h3>5. Two-step classifier</h3>
+              <p>
+                Because direct five-class prediction is unstable on the original distribution, the thesis also evaluates a cascaded approach. Step 1 detects whether disease is present. Step 2, applied only to predicted diseased patients, separates Stage 1 from Stages 2-3-4. This simplifies each decision boundary and focuses the second model on clinically meaningful progression.
+              </p>
+              <p>
+                Logistic Regression on the Ill Conditions binary subset reaches about 0.75 accuracy and 0.76 macro recall for the early-vs-advanced stage task. It correctly identifies roughly 84% of advanced cases, which is the desired direction for a sensitivity-oriented medical workflow.
+              </p>
+            </article>
+            <div class="figure-pair">
+              <figure class="media-card compact">
+                <img src="/static/assets/two-step-classifier-cm.png" alt="Two-step classifier confusion matrix" />
+                <figcaption>The second step prioritizes recognizing advanced disease stages.</figcaption>
+              </figure>
+              <figure class="media-card compact">
+                <img src="/static/assets/two-step-classifier-roc.png" alt="Two-step classifier ROC curve" />
+                <figcaption>AUC around 0.83 supports the usefulness of the early-vs-advanced split.</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <article class="article-block wide">
+            <h3>6. Why the web demo uses the binary Ill Conditions + k-NN model</h3>
+            <p>
+              The web application is meant to be a reliable academic demonstration, not a clinical staging tool. The binary task is the most stable on the original processed datasets, and the Ill Conditions dataset keeps useful transformed clinical variables without relying on the heavily missing original <code>ca</code>, <code>slope</code> and <code>thal</code> fields. The persisted model therefore uses <code>modified_dataset_with_imputations.csv</code>, notebook-style dummy encoding, mean imputation, standard scaling and tuned k-NN with <code>k = 13</code>.
+            </p>
+          </article>
+        </section>
+
+        <section class="tab-panel" id="predictor">
+          <header class="page-header">
+            <p class="eyebrow">Predictive demo</p>
+            <h2>Binary disease/no-disease prediction</h2>
+            <p>
+              Enter a patient-like record to run the persisted model. The form uses interpretable original clinical fields, while the backend derives <code>slope_bin</code> and <code>thal_bin</code> to match the Ill Conditions training dataset.
+            </p>
+          </header>
+
+          <section class="workspace">
+            <form id="prediction-form" class="panel">
+              <h3>Patient data</h3>
+              <div class="form-grid">
+                <label>Age<input name="age" type="number" min="1" max="120" value="54" required /></label>
+                <label>Sex<select name="sex"><option>Male</option><option>Female</option></select></label>
+                <label>Dataset source<select name="dataset"><option>Cleveland</option><option>Hungary</option><option>Switzerland</option><option>VA Long Beach</option></select></label>
+                <label>Chest pain type<select name="cp"><option>typical angina</option><option>atypical angina</option><option>non-anginal</option><option>asymptomatic</option></select></label>
+                <label>Resting blood pressure<input name="trestbps" type="number" min="0" max="300" value="130" required /></label>
+                <label>Serum cholesterol<input name="chol" type="number" min="0" max="700" value="240" required /></label>
+                <label>Fasting blood sugar &gt; 120<select name="fbs"><option value="false">No</option><option value="true">Yes</option></select></label>
+                <label>Resting ECG<select name="restecg"><option>normal</option><option>st-t abnormality</option><option>lv hypertrophy</option></select></label>
+                <label>Maximum heart rate<input name="thalch" type="number" min="0" max="250" value="150" required /></label>
+                <label>Exercise-induced angina<select name="exang"><option value="false">No</option><option value="true">Yes</option></select></label>
+                <label>Oldpeak<input name="oldpeak" type="number" min="-10" max="10" step="0.1" value="1.2" required /></label>
+                <label>ST slope<select name="slope"><option>upsloping</option><option>flat</option><option>downsloping</option></select></label>
+                <label>Major vessels<input name="ca" type="number" min="0" max="4" step="1" value="0" /></label>
+                <label>Thallium result<select name="thal"><option>normal</option><option>fixed defect</option><option>reversable defect</option></select></label>
+              </div>
+              <button type="submit">Run prediction</button>
+            </form>
+
+            <section class="result-panel" aria-live="polite">
+              <h3>Model output</h3>
+              <div id="status" class="status">Waiting for input.</div>
+              <div id="result" class="result hidden"></div>
+            </section>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
