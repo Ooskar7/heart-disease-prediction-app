@@ -14,7 +14,8 @@
           <h1>Heart Disease Severity Prediction</h1>
         </div>
         <nav class="nav" aria-label="Sections">
-          <button class="nav-item active" data-tab="eda" type="button">EDA workflow</button>
+          <button class="nav-item active" data-tab="abstract" type="button">Abstract</button>
+          <button class="nav-item" data-tab="eda" type="button">EDA workflow</button>
           <button class="nav-item" data-tab="training" type="button">Model training</button>
           <button class="nav-item" data-tab="predictor" type="button">Predictive demo</button>
         </nav>
@@ -25,12 +26,32 @@
       </aside>
 
       <main class="content">
-        <section class="notice" role="note">
-          <strong>Not medical diagnosis.</strong>
-          This web application is an academic demonstration of a machine-learning workflow trained on historical public data. It does not replace medical evaluation by a healthcare professional.
+        <section class="tab-panel active" id="abstract">
+          <header class="page-header">
+            <p class="eyebrow">Abstract</p>
+            <h2>Abstract</h2>
+            <p>
+              Cardiovascular disease remains the leading cause of mortality worldwide, placing a
+              growing burden on healthcare systems. Early and accurate assessment of heart-disease
+              severity is critical for guiding treatment and improving patient outcomes. In this work,
+              we present a case study on predicting heart-disease severity using machine-learning algorithms
+              applied to a publicly available dataset. Through an exploratory data analysis
+              we characterize clinical features, perform data cleaning, and engineer novel predictors,
+              generating several tailored datasets to train our predictive models. Our six supervised
+              learning models—Logistic Regression, k-Nearest Neighbors, Naive Bayes, Support Vector
+              Machines, Random Forests, and XGBoost—are trained and evaluated via stratified 5-fold
+              cross-validation in both binary (disease vs. no disease) and five-class severity (0–4) settings.
+              Performance is measured using accuracy, precision, recall, F1-score, and area under
+              the ROC curve. Our best model, Random Forest, achieves an overall accuracy of 83%, macro
+              average recall of 82%, and an F1-score of 82%, outperforming baseline classifiers by a
+              substantial margin. Feature-importance analysis identifies [ST depression, maximum heart
+              rate, age] as the strongest predictors of severity. These results demonstrate the promise
+              of ensemble and decision-tree techniques for automated heart-disease assessment.
+            </p>
+          </header>
         </section>
 
-        <section class="tab-panel active" id="eda">
+        <section class="tab-panel" id="eda">
           <header class="page-header">
             <p class="eyebrow">Development and experiments</p>
             <h2>Exploratory data analysis, cleaning and dataset construction</h2>
@@ -62,29 +83,53 @@
               <p>
                 This distribution immediately shapes the project. A naive multiclass model can obtain apparently acceptable accuracy by overpredicting class 0, while failing to identify the clinically important minority stages. For that reason, the thesis tracks recall and macro-averaged metrics rather than relying only on accuracy.
               </p>
-              <pre><code>df = pd.read_csv("heart_disease_uci.csv")
-df.shape
-df["num"].value_counts().sort_index()</code></pre>
+
             </article>
 
-            <figure class="media-card">
+            <figure class="media-card kaggle-card">
               <img src="/static/assets/kaggle.png" alt="Kaggle public database source slide" />
               <figcaption>The practical work begins from a public, reproducible heart-disease dataset.</figcaption>
             </figure>
           </section>
 
-          <section class="story-section">
+          <section class="story-section feature-inventory">
             <article class="article-block">
               <h3>2. Feature inventory</h3>
               <p>
-                The dataset includes one identifier, fourteen predictors and one target. Continuous predictors include <code>age</code>, <code>trestbps</code>, <code>chol</code>, <code>thalach</code> and <code>oldpeak</code>. Categorical predictors include <code>sex</code>, <code>dataset</code>, <code>cp</code>, <code>fbs</code>, <code>restecg</code>, <code>exang</code>, <code>slope</code>, <code>ca</code> and <code>thal</code>.
+                The dataset contains one patient identifier (<code>id</code>), fourteen predictor variables, and one target variable. The predictors are divided into continuous and categorical variables as follows:
               </p>
+
+              <ul>
+                <li><code><b>id</b></code> (identifier): unique patient number used to distinguish each record. This variable is not used as a predictive feature.</li>
+                <li><code><b>age</b></code> (continuous): patient age in years.</li>
+                <li><code><b>sex</b></code> (categorical): patient sex, recorded as male or female.</li>
+                <li><code><b>dataset</b></code> (categorical): location where the data were collected: Cleveland, Hungary, VA Long Beach, or Switzerland.</li>
+                <li><code><b>cp</b></code> (categorical): type of chest pain reported by the patient: typical angina, atypical angina, non-anginal pain, or asymptomatic.</li>
+                <li><code><b>trestbps</b></code> (continuous): resting blood pressure, measured in mmHg on admission.</li>
+                <li><code><b>chol</b></code> (continuous): serum cholesterol level, measured in mg/dL.</li>
+                <li><code><b>fbs</b></code> (categorical): whether fasting blood sugar is greater than 120 mg/dL, recorded as true or false.</li>
+                <li><code><b>restecg</b></code> (categorical): resting electrocardiogram result, classified as normal, ST-T wave abnormality, or left ventricular hypertrophy.</li>
+                <li><code><b>thalach</b></code> (continuous): maximum heart rate achieved during exercise.</li>
+                <li><code><b>exang</b></code> (categorical): presence of exercise-induced angina, recorded as true or false.</li>
+                <li><code><b>oldpeak</b></code> (continuous): ST depression induced by exercise relative to rest, measured in mm.</li>
+                <li><code><b>slope</b></code> (categorical): slope of the peak exercise ST segment, classified as upsloping, flat, or downsloping.</li>
+                <li><code><b>ca</b></code> (categorical): number of major vessels, from 0 to 3, colored by fluoroscopy.</li>
+                <li><code><b>thal</b></code> (categorical): thallium stress test result, classified as normal, fixed defect, or reversible defect.</li>
+              </ul>
+
+              <p>The target variable is:</p>
+
+              <ul>
+                <li><code><b>num</b></code> (categorical): diagnostic label assigned after angiographic evaluation. A value of <code>0</code> indicates no presence of heart disease, while values from <code>1</code> to <code>4</code> represent increasing severity, from mild to severe heart disease.</li>
+              </ul>
+
               <p>
-                This inventory matters because the training notebook later applies one-hot encoding to categorical variables and standardization to distance-sensitive models such as k-NN and SVM.
+                This feature inventory is important because preprocessing depends on variable type. Categorical variables are later transformed using one-hot encoding, while continuous variables are standardized, especially for distance-sensitive models such as k-NN and SVM.
               </p>
+
             </article>
-            <figure class="media-card">
-              <img src="/static/assets/features-1.png" alt="Clinical feature overview" />
+            <figure class="media-card feature-inventory-card">
+              <img src="/static/assets/Feature-Inventory.png" alt="Clinical feature overview" />
               <figcaption>Clinical predictors combine demographic, laboratory and exercise-test information.</figcaption>
             </figure>
           </section>
@@ -96,7 +141,7 @@ df["num"].value_counts().sort_index()</code></pre>
                 The EDA does not treat all numeric values as valid just because they are present. Two impossible values are detected: one patient has <code>trestbps = 0</code> mmHg and 172 records have <code>chol = 0</code> mg/dL. Both are physiologically impossible in living patients, so they are converted to missing values before any distributional analysis or model fitting.
               </p>
               <pre><code>df["trestbps"] = df["trestbps"].replace(0, np.nan)
-df["chol"] = df["chol"].replace(0, np.nan)</code></pre>
+                df["chol"] = df["chol"].replace(0, np.nan)</code></pre>
               <p>
                 This decision prevents erroneous zeros from pulling means, histograms and downstream imputers toward impossible values.
               </p>
@@ -131,8 +176,8 @@ df["chol"] = df["chol"].replace(0, np.nan)</code></pre>
                 The thesis removes the 152 records with four or more missing fields. This discards 16.52% of the rows but removes 40.8% of all missing entries, reducing the imputation burden while keeping 768 usable samples. That trade-off is justified because rows with many missing values add little reliable signal and would force heavy imputation across several features at once.
               </p>
               <pre><code>nulls_per_row = df.isnull().sum(axis=1)
-rows_to_drop = nulls_per_row.isin([4, 5, 6, 7, 8])
-df_filtered = df[~rows_to_drop]</code></pre>
+                rows_to_drop = nulls_per_row.isin([4, 5, 6, 7, 8])
+                df_filtered = df[~rows_to_drop]</code></pre>
             </article>
             <figure class="media-card">
               <img src="/static/assets/null-row-count.png" alt="Distribution of missing values per row" />
@@ -173,15 +218,15 @@ df_filtered = df[~rows_to_drop]</code></pre>
                 The high-missingness variables require stronger decisions. <code>ca</code> is dropped because 59.77% missingness remains after filtering. <code>slope</code> and <code>thal</code> are clinically meaningful, so they are collapsed into less sparse binary indicators: <code>slope_bin</code> is flat vs non-flat, and <code>thal_bin</code> is defect vs no defect. This sacrifices category granularity to preserve usable signal.
               </p>
               <pre><code>df_clean["slope_bin"] = df_clean["slope"].map({
-    "flat": "flat",
-    "upsloping": "non-flat",
-    "downsloping": "non-flat"
-})
+                "flat": "flat",
+                "upsloping": "non-flat",
+                "downsloping": "non-flat"
+                })
 
-df_clean["thal_bin"] = df_clean["thal"].map({
-    "normal": "no defect",
-    "fixed defect": "defect",
-    "reversable defect": "defect"
+                df_clean["thal_bin"] = df_clean["thal"].map({
+                "normal": "no defect",
+                "fixed defect": "defect",
+                "reversable defect": "defect"
 })</code></pre>
             </article>
             <article class="article-block">
@@ -241,8 +286,8 @@ df_clean["thal_bin"] = df_clean["thal"].map({
                 A single train/test split would make the result depend too much on one random partition. The thesis therefore uses a 5-fold outer cross-validation loop and a 3-fold inner loop for hyperparameter tuning. The outer test fold is never used to choose hyperparameters, so the final score is a less biased estimate of generalization.
               </p>
               <pre><code>outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-grid = GridSearchCV(model, param_grid, cv=3, scoring="recall")
-y_pred = cross_val_predict(grid, X, y, cv=outer_cv)</code></pre>
+              grid = GridSearchCV(model, param_grid, cv=3, scoring="recall")
+              y_pred = cross_val_predict(grid, X, y, cv=outer_cv)</code></pre>
             </article>
             <figure class="media-card">
               <img src="/static/assets/diagram-model-training.png" alt="Nested cross-validation diagram" />

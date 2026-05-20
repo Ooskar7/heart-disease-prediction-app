@@ -212,6 +212,24 @@ code {
   min-height: 78px;
 }
 
+.kaggle-card {
+  width: 75%;
+  justify-self: center;
+}
+
+.story-section.feature-inventory {
+  display: block;
+}
+
+.feature-inventory .article-block {
+  grid-column: 1 / -1;
+}
+
+.feature-inventory-card {
+  width: min(760px, 100%);
+  margin: 18px auto 0;
+}
+
 .strategy-grid,
 .figure-pair {
   display: grid;
@@ -435,4 +453,15 @@ form button[type="submit"]:hover {
   .nav {
     grid-template-columns: 1fr;
   }
+}
+
+.feature-inventory ul {
+  margin: 0.75rem 0 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.feature-inventory li {
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  line-height: 1.55;
 }
