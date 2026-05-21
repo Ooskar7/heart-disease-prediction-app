@@ -14,7 +14,7 @@
           <h1>Heart Disease Prediction App</h1>
         </div>
         <nav class="nav" aria-label="Sections">
-          <button class="nav-item active" data-tab="abstract" type="button">Abstract</button>
+          <button class="nav-item active" data-tab="abstract" type="button">Introduction</button>
           <button class="nav-item" data-tab="eda" type="button">EDA</button>
           <button class="nav-item" data-tab="training" type="button">Model training</button>
           <button class="nav-item" data-tab="predictor" type="button">Predictive demo</button>
@@ -28,8 +28,15 @@
       <main class="content">
         <section class="tab-panel active" id="abstract">
           <header class="page-header">
-            <p class="eyebrow">Abstract</p>
-            <h2>Abstract</h2>
+            <p class="eyebrow">Bachelor thesis project</p>
+            <h2>Introduction</h2>
+            <p>
+              This web application presents the practical component of a university bachelor thesis on heart-disease prediction using machine-learning methods. It summarizes the exploratory data analysis, model-training workflow, and final predictive demo developed from a public clinical dataset.
+            </p>
+            <p>
+              The complete thesis PDF can be read or downloaded from the <a href="https://github.com/Ooskar7/heart-disease-prediction-app.git" target="_blank" rel="noopener noreferrer">project GitHub repository</a> for readers who want the full academic context, methodology, and results.
+            </p>
+            <h3>Abstract</h3>
             <p>
               Cardiovascular disease remains the leading cause of mortality worldwide, placing a
               growing burden on healthcare systems. Early and accurate assessment of heart-disease
@@ -284,14 +291,7 @@
             </p>
           </header>
 
-          <div class="metric-grid" id="training-metrics">
-            <div><span>Selected dataset</span><strong>modified_dataset_with_imputations.csv</strong></div>
-            <div><span>Selected model</span><strong>KNN tuned</strong></div>
-            <div><span>Artifact accuracy</span><strong>0.84</strong></div>
-            <div><span>Disease recall</span><strong>0.86</strong></div>
-          </div>
-
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>1. Why nested cross-validation?</h3>
               <p>
@@ -301,7 +301,7 @@
               grid = GridSearchCV(model, param_grid, cv=3, scoring="recall")
               y_pred = cross_val_predict(grid, X, y, cv=outer_cv)</code></pre>
             </article>
-            <figure class="media-card">
+            <figure class="media-card nested-cv-card">
               <img src="/static/assets/diagram-model-training.png" alt="Nested cross-validation diagram" />
               <figcaption>Each outer fold is evaluated only after hyperparameters are selected inside the training portion.</figcaption>
             </figure>
@@ -331,7 +331,7 @@
             </article>
           </section>
 
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>3. Binary classifier: disease vs no disease</h3>
               <p>
@@ -365,16 +365,23 @@
             </div>
           </section>
 
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>4. Multiclass severity prediction</h3>
               <p>
                 The full target <code>num ∈ {0,1,2,3,4}</code> is harder because the original class distribution is highly skewed. On the original datasets, most models obtain only around 0.50-0.60 accuracy and weak macro recall, meaning they mostly recognize the majority class and fail on rarer severe stages.
               </p>
               <p>
-                To address this, the notebook constructs four resampled variants: Balanced, Equalized to Class 1, Equalized to Class 2, and Equalized to Class 4. Equalizing to Class 1 gives the strongest multiclass result because it preserves more total samples while making all classes equally represented. Random Forest and XGBoost reach approximately 0.83 accuracy and 0.83 macro recall on that dataset.
+                To reduce this bias, the notebook builds four altered versions of the Ill Conditions dataset. The Balanced dataset downsamples classes 0 and 1 to roughly match the smaller advanced-stage groups, but it still leaves class 4 underrepresented and reduces the total sample size to 353 records. The Equalized datasets force every class to the same height: Equalized to Class 1 creates 215 samples per class, Equalized to Class 2 creates 85 per class, and Equalized to Class 4 creates only 22 per class.
+              </p>
+              <p>
+                Equalized to Class 1 performs best because it combines two advantages at the same time: all five severity classes are equally represented, and the resulting dataset remains large enough for the models to learn stable decision boundaries. The Equalized to Class 2 and Class 4 datasets are also balanced, but they discard too much information, especially the Class 4 version with only 110 total records. On the Equalized to Class 1 dataset, Random Forest and XGBoost reach approximately 0.83 accuracy and 0.83 macro recall, making it the strongest multiclass setting.
               </p>
             </article>
+            <figure class="media-card multiclass-resampling-card">
+              <img src="/static/assets/multiclass-resampling-datasets.svg" alt="Multiclass resampling datasets" />
+              <figcaption>Equalized to Class 1 gives each severity class the same representation while keeping the largest resampled training set.</figcaption>
+            </figure>
             <div class="figure-pair">
               <figure class="media-card compact">
                 <img src="/static/assets/multiclass-classifier-cm.png" alt="Multiclass classifier confusion matrix" />
@@ -387,7 +394,7 @@
             </div>
           </section>
 
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>5. Two-step classifier</h3>
               <p>
@@ -397,6 +404,10 @@
                 Logistic Regression on the Ill Conditions binary subset reaches about 0.75 accuracy and 0.76 macro recall for the early-vs-advanced stage task. It correctly identifies roughly 84% of advanced cases, which is the desired direction for a sensitivity-oriented medical workflow.
               </p>
             </article>
+            <figure class="media-card two-step-cascade-card">
+              <img src="/static/assets/two-step-cascade.png" alt="Two-step cascade classifier workflow" />
+              <figcaption>The cascade first screens for disease presence, then applies a second binary model only to patients predicted as positive.</figcaption>
+            </figure>
             <div class="figure-pair">
               <figure class="media-card compact">
                 <img src="/static/assets/two-step-classifier-cm.png" alt="Two-step classifier confusion matrix" />
@@ -414,6 +425,12 @@
             <p>
               The web application is meant to be a reliable academic demonstration, not a clinical staging tool. The binary task is the most stable on the original processed datasets, and the Ill Conditions dataset keeps useful transformed clinical variables without relying on the heavily missing original <code>ca</code>, <code>slope</code> and <code>thal</code> fields. The persisted model therefore uses <code>modified_dataset_with_imputations.csv</code>, notebook-style dummy encoding, mean imputation, standard scaling and tuned k-NN with <code>k = 13</code>.
             </p>
+            <div class="metric-grid" id="training-metrics">
+            <div class="metric-long"><span>Selected dataset</span><strong>modified_dataset_with_imputations.csv</strong></div>
+            <div><span>Selected model</span><strong>KNN tuned</strong></div>
+            <div><span>Model accuracy</span><strong>0.84</strong></div>
+            <div><span>Disease recall</span><strong>0.86</strong></div>
+          </div>
           </article>
         </section>
 
@@ -432,7 +449,6 @@
               <div class="form-grid">
                 <label>Age<input name="age" type="number" min="1" max="120" value="54" required /></label>
                 <label>Sex<select name="sex"><option>Male</option><option>Female</option></select></label>
-                <label>Dataset source<select name="dataset"><option>Cleveland</option><option>Hungary</option><option>Switzerland</option><option>VA Long Beach</option></select></label>
                 <label>Chest pain type<select name="cp"><option>typical angina</option><option>atypical angina</option><option>non-anginal</option><option>asymptomatic</option></select></label>
                 <label>Resting blood pressure<input name="trestbps" type="number" min="0" max="300" value="130" required /></label>
                 <label>Serum cholesterol<input name="chol" type="number" min="0" max="700" value="240" required /></label>

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">Multiclass resampling datasets</title>
+  <desc id="desc">Comparison of original class distribution and four resampled multiclass datasets.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7fafc; }
+      .title { font: 800 42px Inter, Arial, sans-serif; fill: #17202a; }
+      .subtitle { font: 500 22px Inter, Arial, sans-serif; fill: #5d6874; }
+      .card { fill: #ffffff; stroke: #d7dee7; stroke-width: 2; rx: 14; }
+      .card-title { font: 800 25px Inter, Arial, sans-serif; fill: #17202a; }
+      .card-note { font: 600 17px Inter, Arial, sans-serif; fill: #5d6874; }
+      .axis { stroke: #d7dee7; stroke-width: 2; }
+      .bar0 { fill: #50627a; }
+      .bar1 { fill: #0f766e; }
+      .bar2 { fill: #d08a22; }
+      .bar3 { fill: #7c5cc4; }
+      .bar4 { fill: #c2414b; }
+      .label { font: 700 15px Inter, Arial, sans-serif; fill: #25313d; }
+      .small { font: 600 14px Inter, Arial, sans-serif; fill: #5d6874; }
+      .tag { font: 800 16px Inter, Arial, sans-serif; fill: #ffffff; }
+      .tag-bg { fill: #0f766e; rx: 14; }
+      .warn-bg { fill: #d08a22; rx: 14; }
+      .weak-bg { fill: #8a95a3; rx: 14; }
+      .best { stroke: #0f766e; stroke-width: 4; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1400" height="820"/>
+  <text class="title" x="70" y="70">Resampled Multiclass Datasets</text>
+  <text class="subtitle" x="70" y="108">Class distributions used to reduce majority-class bias in severity prediction</text>
+
+  <g transform="translate(70 150)">
+    <rect class="card" width="390" height="255"/>
+    <text class="card-title" x="26" y="44">Original Ill Conditions</text>
+    <text class="card-note" x="26" y="74">n = 767, strongly skewed</text>
+    <line class="axis" x1="36" y1="211" x2="354" y2="211"/>
+    <rect class="bar0" x="50" y="42" width="38" height="169"/>
+    <rect class="bar1" x="110" y="111" width="38" height="100"/>
+    <rect class="bar2" x="170" y="171" width="38" height="40"/>
+    <rect class="bar3" x="230" y="173" width="38" height="38"/>
+    <rect class="bar4" x="290" y="201" width="38" height="10"/>
+    <text class="small" x="48" y="232">0</text><text class="small" x="108" y="232">1</text><text class="small" x="168" y="232">2</text><text class="small" x="228" y="232">3</text><text class="small" x="288" y="232">4</text>
+    <text class="label" x="45" y="36">363</text><text class="label" x="105" y="104">215</text><text class="label" x="168" y="164">85</text><text class="label" x="228" y="166">82</text><text class="label" x="286" y="194">22</text>
+  </g>
+
+  <g transform="translate(505 150)">
+    <rect class="card" width="390" height="255"/>
+    <text class="card-title" x="26" y="44">Balanced Dataset</text>
+    <text class="card-note" x="26" y="74">n = 353, partial downsampling</text>
+    <line class="axis" x1="36" y1="211" x2="354" y2="211"/>
+    <rect class="bar0" x="50" y="173" width="38" height="38"/>
+    <rect class="bar1" x="110" y="173" width="38" height="38"/>
+    <rect class="bar2" x="170" y="171" width="38" height="40"/>
+    <rect class="bar3" x="230" y="173" width="38" height="38"/>
+    <rect class="bar4" x="290" y="201" width="38" height="10"/>
+    <text class="small" x="48" y="232">0</text><text class="small" x="108" y="232">1</text><text class="small" x="168" y="232">2</text><text class="small" x="228" y="232">3</text><text class="small" x="288" y="232">4</text>
+    <text class="label" x="47" y="166">82</text><text class="label" x="107" y="166">82</text><text class="label" x="168" y="164">85</text><text class="label" x="228" y="166">82</text><text class="label" x="286" y="194">22</text>
+  </g>
+
+  <g transform="translate(940 150)">
+    <rect class="card best" width="390" height="255"/>
+    <rect class="tag-bg" x="262" y="24" width="94" height="29"/>
+    <text class="tag" x="282" y="44">BEST</text>
+    <text class="card-title" x="26" y="44">Equalized to Class 1</text>
+    <text class="card-note" x="26" y="74">n = 1075, 215 per class</text>
+    <line class="axis" x1="36" y1="211" x2="354" y2="211"/>
+    <rect class="bar0" x="50" y="111" width="38" height="100"/>
+    <rect class="bar1" x="110" y="111" width="38" height="100"/>
+    <rect class="bar2" x="170" y="111" width="38" height="100"/>
+    <rect class="bar3" x="230" y="111" width="38" height="100"/>
+    <rect class="bar4" x="290" y="111" width="38" height="100"/>
+    <text class="small" x="48" y="232">0</text><text class="small" x="108" y="232">1</text><text class="small" x="168" y="232">2</text><text class="small" x="228" y="232">3</text><text class="small" x="288" y="232">4</text>
+    <text class="label" x="43" y="104">215</text><text class="label" x="103" y="104">215</text><text class="label" x="163" y="104">215</text><text class="label" x="223" y="104">215</text><text class="label" x="283" y="104">215</text>
+  </g>
+
+  <g transform="translate(285 470)">
+    <rect class="card" width="390" height="255"/>
+    <rect class="warn-bg" x="260" y="24" width="96" height="29"/>
+    <text class="tag" x="279" y="44">SMALL</text>
+    <text class="card-title" x="26" y="44">Equalized to Class 2</text>
+    <text class="card-note" x="26" y="74">n = 425, 85 per class</text>
+    <line class="axis" x1="36" y1="211" x2="354" y2="211"/>
+    <rect class="bar0" x="50" y="171" width="38" height="40"/>
+    <rect class="bar1" x="110" y="171" width="38" height="40"/>
+    <rect class="bar2" x="170" y="171" width="38" height="40"/>
+    <rect class="bar3" x="230" y="171" width="38" height="40"/>
+    <rect class="bar4" x="290" y="171" width="38" height="40"/>
+    <text class="small" x="48" y="232">0</text><text class="small" x="108" y="232">1</text><text class="small" x="168" y="232">2</text><text class="small" x="228" y="232">3</text><text class="small" x="288" y="232">4</text>
+    <text class="label" x="47" y="164">85</text><text class="label" x="107" y="164">85</text><text class="label" x="167" y="164">85</text><text class="label" x="227" y="164">85</text><text class="label" x="287" y="164">85</text>
+  </g>
+
+  <g transform="translate(725 470)">
+    <rect class="card" width="390" height="255"/>
+    <rect class="weak-bg" x="268" y="24" width="88" height="29"/>
+    <text class="tag" x="287" y="44">TINY</text>
+    <text class="card-title" x="26" y="44">Equalized to Class 4</text>
+    <text class="card-note" x="26" y="74">n = 110, 22 per class</text>
+    <line class="axis" x1="36" y1="211" x2="354" y2="211"/>
+    <rect class="bar0" x="50" y="201" width="38" height="10"/>
+    <rect class="bar1" x="110" y="201" width="38" height="10"/>
+    <rect class="bar2" x="170" y="201" width="38" height="10"/>
+    <rect class="bar3" x="230" y="201" width="38" height="10"/>
+    <rect class="bar4" x="290" y="201" width="38" height="10"/>
+    <text class="small" x="48" y="232">0</text><text class="small" x="108" y="232">1</text><text class="small" x="168" y="232">2</text><text class="small" x="228" y="232">3</text><text class="small" x="288" y="232">4</text>
+    <text class="label" x="47" y="194">22</text><text class="label" x="107" y="194">22</text><text class="label" x="167" y="194">22</text><text class="label" x="227" y="194">22</text><text class="label" x="287" y="194">22</text>
+  </g>
+</svg>

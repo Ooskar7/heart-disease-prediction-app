@@ -51,7 +51,8 @@ TRAINING_SUMMARY = {
     "selection_reason": (
         "For the binary disease/no disease task, this combination achieved the best "
         "balanced practical result in the notebook: accuracy around 0.84 and disease "
-        "recall around 0.86."
+        "recall around 0.86. The web-demo artifact excludes the data-collection "
+        "location field because it is not a patient clinical attribute."
     ),
     "models_compared": [
         "Dummy Classifier",

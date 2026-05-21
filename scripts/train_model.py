@@ -26,7 +26,7 @@ ARTIFACT_PATH = ROOT_DIR / "backend" / "artifacts" / "heart_model.joblib"
 METADATA_PATH = ROOT_DIR / "backend" / "artifacts" / "metadata.json"
 
 TARGET = "num"
-DROP_COLUMNS = ["id", TARGET]
+DROP_COLUMNS = ["id", "dataset", TARGET]
 
 
 def load_training_data() -> tuple[pd.DataFrame, pd.Series, str]:
@@ -82,6 +82,7 @@ def main() -> None:
         "task": "Binary classification: disease vs no disease",
         "target_definition": "num > 0",
         "dataset_used_for_artifact": dataset_name,
+        "excluded_demo_features": ["dataset"],
         "best_params": search.best_params_,
         "cross_validation_metrics_from_current_artifact": cv_metrics,
         "reported_notebook_metrics": NOTEBOOK_METRICS,

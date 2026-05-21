@@ -239,12 +239,42 @@ code {
   margin: 18px auto 0;
 }
 
+.vertical-media-section .figure-pair {
+  margin-top: 18px;
+}
+
 .missing-values-card {
   width: min(680px, 72%);
 }
 
 .outlier-card {
   width: min(560px, 58%);
+}
+
+.nested-cv-card {
+  width: min(240px, 42%);
+}
+
+.nested-cv-card img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.multiclass-resampling-card {
+  width: 100%;
+}
+
+.multiclass-resampling-card img {
+  width: 100%;
+}
+
+.two-step-cascade-card {
+  width: 100%;
+}
+
+.two-step-cascade-card img {
+  width: 100%;
 }
 
 .row-deletion-card {
@@ -381,6 +411,7 @@ pre {
 .metric-grid div {
   display: grid;
   gap: 8px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -394,6 +425,13 @@ pre {
 
 .metric-grid strong {
   font-size: 1.25rem;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.metric-grid .metric-long strong {
+  font-size: clamp(0.9rem, 1.15vw, 1.05rem);
+  font-family: "SFMono-Regular", Consolas, monospace;
 }
 
 .workspace {

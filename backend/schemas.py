@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 class PredictionInput(BaseModel):
     age: int = Field(ge=1, le=120)
     sex: Literal["Male", "Female"]
-    dataset: Literal["Cleveland", "Hungary", "Switzerland", "VA Long Beach"]
     cp: Literal["typical angina", "atypical angina", "non-anginal", "asymptomatic"]
     trestbps: float = Field(ge=0, le=300)
     chol: float = Field(ge=0, le=700)

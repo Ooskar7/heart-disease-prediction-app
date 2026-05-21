@@ -28,7 +28,7 @@ async function loadMetadata() {
   metricsNode.innerHTML = `
     <div><span>Selected dataset</span><strong>${artifact.dataset_used_for_artifact || notebook.dataset}</strong></div>
     <div><span>Selected model</span><strong>${notebook.model}</strong></div>
-    <div><span>Artifact accuracy</span><strong>${formatMetric(currentMetrics.accuracy || notebook.accuracy)}</strong></div>
+    <div><span>Model accuracy</span><strong>${formatMetric(currentMetrics.accuracy || notebook.accuracy)}</strong></div>
     <div><span>Disease recall</span><strong>${formatMetric(currentMetrics.recall_disease || notebook.recall_disease)}</strong></div>
   `;
 
@@ -46,7 +46,6 @@ function formToPayload(formElement) {
   return {
     age: Number(data.get("age")),
     sex: data.get("sex"),
-    dataset: data.get("dataset"),
     cp: data.get("cp"),
     trestbps: Number(data.get("trestbps")),
     chol: Number(data.get("chol")),
