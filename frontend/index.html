@@ -11,11 +11,11 @@
       <aside class="sidebar">
         <div class="brand">
           <p>Bachelor thesis</p>
-          <h1>Heart Disease Severity Prediction</h1>
+          <h1>Heart Disease Prediction App</h1>
         </div>
         <nav class="nav" aria-label="Sections">
           <button class="nav-item active" data-tab="abstract" type="button">Abstract</button>
-          <button class="nav-item" data-tab="eda" type="button">EDA workflow</button>
+          <button class="nav-item" data-tab="eda" type="button">EDA</button>
           <button class="nav-item" data-tab="training" type="button">Model training</button>
           <button class="nav-item" data-tab="predictor" type="button">Predictive demo</button>
         </nav>
@@ -53,8 +53,8 @@
 
         <section class="tab-panel" id="eda">
           <header class="page-header">
-            <p class="eyebrow">Development and experiments</p>
-            <h2>Exploratory data analysis, cleaning and dataset construction</h2>
+            <p class="eyebrow">Data collecting, cleaning and preprocessing</p>
+            <h2>Exploratory Data Analysis, cleaning and dataset construction</h2>
             <p>
               The practical chapter starts from a public heart-disease dataset and builds the data foundation needed for model comparison. The goal is not only to clean the data, but to reason step by step about which information can be trusted, which missing values can be imputed, and which design choices preserve enough signal to outperform a dummy classifier later.
             </p>
@@ -134,7 +134,7 @@
             </figure>
           </section>
 
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>3. First cleaning: impossible physiological values</h3>
               <p>
@@ -146,8 +146,8 @@
                 This decision prevents erroneous zeros from pulling means, histograms and downstream imputers toward impossible values.
               </p>
             </article>
-            <figure class="media-card">
-              <img src="/static/assets/high-missing-variables.png" alt="High missing variables slide" />
+            <figure class="media-card missing-values-card">
+              <img src="/static/assets/missing-variables-table.png" alt="Missing variables table" />
               <figcaption>After cleaning impossible values, missingness becomes the central data-quality problem.</figcaption>
             </figure>
           </section>
@@ -179,7 +179,7 @@
                 rows_to_drop = nulls_per_row.isin([4, 5, 6, 7, 8])
                 df_filtered = df[~rows_to_drop]</code></pre>
             </article>
-            <figure class="media-card">
+            <figure class="media-card row-deletion-card">
               <img src="/static/assets/null-row-count.png" alt="Distribution of missing values per row" />
               <figcaption>Rows with four or more missing fields concentrate a large share of the missing-value problem.</figcaption>
             </figure>
@@ -191,24 +191,20 @@
               <p>
                 After row filtering, the project deliberately constructs three datasets instead of betting on one preprocessing assumption. This allows the training notebook to measure how different missing-value strategies affect accuracy, recall and class balance.
               </p>
-              <div class="strategy-grid">
-                <figure class="media-card compact">
-                  <img src="/static/assets/no-nans-strategy.png" alt="No NaNs strategy" />
-                  <figcaption><strong>No NaNs:</strong> remove every incomplete row. Maximum integrity, but only 297 rows after outlier treatment.</figcaption>
-                </figure>
-                <figure class="media-card compact">
-                  <img src="/static/assets/no-ill-conditions-strategy.png" alt="No ill conditions strategy" />
-                  <figcaption><strong>No Ill Conditions:</strong> drop <code>slope</code>, <code>ca</code> and <code>thal</code>, then impute the remaining low/moderate missingness.</figcaption>
-                </figure>
-                <figure class="media-card compact">
-                  <img src="/static/assets/ill-conditions-strategy.png" alt="Ill conditions strategy" />
-                  <figcaption><strong>Ill Conditions:</strong> preserve more clinical signal by transforming <code>slope</code> and <code>thal</code> into binary variables.</figcaption>
+              <div class="strategy-panel">
+                <figure class="media-card dataset-strategy-card">
+                  <img src="/static/assets/Dataset-Construction-Strategies.png" alt="Dataset construction strategies" />
+                  <figcaption class="strategy-caption-grid">
+                    <div><strong>No NaNs:</strong> remove every incomplete row. Maximum integrity, but only 297 rows after outlier treatment.</div>
+                    <div><strong>No Ill Conditions:</strong> drop <code>slope</code>, <code>ca</code> and <code>thal</code>, then impute the remaining low/moderate missingness.</div>
+                    <div><strong>Ill Conditions:</strong> preserve more clinical signal by transforming <code>slope</code> and <code>thal</code> into binary variables.</div>
+                  </figcaption>
                 </figure>
               </div>
             </article>
           </section>
 
-          <section class="story-section">
+          <section class="story-section stacked-articles">
             <article class="article-block">
               <h3>6. Imputation logic</h3>
               <p>
@@ -246,7 +242,7 @@
             </article>
           </section>
 
-          <section class="story-section">
+          <section class="story-section vertical-media-section">
             <article class="article-block">
               <h3>8. Outlier detection and treatment</h3>
               <p>
@@ -256,9 +252,25 @@
                 This removes 2 outliers from the No NaNs dataset and 1 outlier from each imputed dataset, preserving nearly all usable data while protecting models from extreme leverage points.
               </p>
             </article>
-            <figure class="media-card">
+            <figure class="media-card outlier-card">
               <img src="/static/assets/outliers-band.png" alt="Relaxed outlier band" />
               <figcaption>The relaxed 5th-95th percentile IQR band protects against anomalies without discarding valid clinical extremes.</figcaption>
+            </figure>
+          </section>
+
+          <section class="story-section vertical-media-section">
+            <article class="article-block">
+              <h3>9. Final Datasets</h3>
+              <p>
+                At the end of the exploratory data analysis, the project has constructed three final datasets for the model training stage. These datasets represent different preprocessing assumptions, allowing the training notebook to compare whether complete-case deletion, imputation with variable removal, or imputation with collapsed clinical indicators produces the strongest predictive performance.
+              </p>
+              <p>
+                These three datasets are the final inputs used for the model-training experiments: the No NaNs dataset, the No Ill Conditions dataset, and the Ill Conditions dataset.
+              </p>
+            </article>
+            <figure class="media-card final-datasets-card">
+              <img src="/static/assets/final-datasets.png" alt="Final datasets for model training" />
+              <figcaption>The EDA concludes with three processed datasets that are carried forward into model training and comparison.</figcaption>
             </figure>
           </section>
         </section>
