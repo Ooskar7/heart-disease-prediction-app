@@ -230,6 +230,32 @@ code {
   margin: 18px auto 0;
 }
 
+.vertical-media-section,
+.stacked-articles {
+  display: block;
+}
+
+.vertical-media-section .media-card {
+  margin: 18px auto 0;
+}
+
+.missing-values-card {
+  width: min(680px, 72%);
+}
+
+.outlier-card {
+  width: min(560px, 58%);
+}
+
+.row-deletion-card {
+  width: 75%;
+  margin: 18px auto 0;
+}
+
+.stacked-articles .article-block + .article-block {
+  margin-top: 18px;
+}
+
 .strategy-panel {
   margin-top: 18px;
 }
@@ -239,6 +265,14 @@ code {
 }
 
 .dataset-strategy-card img {
+  width: 100%;
+}
+
+.final-datasets-card {
+  width: 100%;
+}
+
+.final-datasets-card img {
   width: 100%;
 }
 
