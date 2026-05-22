@@ -4,6 +4,8 @@ Academic web application developed as part of a university bachelor thesis on he
 
 The project combines exploratory data analysis, dataset preprocessing, model comparison, and a small predictive demo built with FastAPI and a static frontend. The application is intended to explain the workflow and demonstrate the final binary disease/no-disease model. It is not a medical diagnosis tool.
 
+Live Demo: https://heart-disease-prediction-app-xyae.onrender.com
+
 ## Project Contents
 
 - `Bachelor's Thesis.pdf`: full thesis document.
